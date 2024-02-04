@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import com.mysql.cj.xdevapi.Result;
 
 import dto.Admin;
 import dto.Movie;
+import dto.User;
 
 
 
@@ -162,14 +164,83 @@ public class Dao
 		mm.setMovieimage(img);
 		return mm;
 		
+	}
+	public int saveUser(User u) throws ClassNotFoundException, SQLException
+	{
+		Connection conn=getConnection();
+		PreparedStatement pst=conn.prepareStatement("insert into user values(?,?,?,?, ?)");
 		
+		pst.setInt(1, u.getUserid());
+		pst.setString(2,u.getUsername());
+		pst.setLong(3, u.getUsercontact());
+		pst.setString(4, u.getUsermail());
+		pst.setString(5, u.getUserpassword());
 		
-		
-		
+		return pst.executeUpdate();
+	}
+	public User findUserByEmail(String email) throws ClassNotFoundException, SQLException
+	{
+			Connection con=getConnection();
+			PreparedStatement pst=con.prepareStatement("select * from user where uMail=?");
+			
+			pst.setString(1, email);
+			ResultSet rs=pst.executeQuery();
+			User u=new User();
+				rs.next();
+				u.setUserid(rs.getInt(1));
+				u.setUsername(rs.getString(2));
+				u.setUsercontact(rs.getLong(3));
+				u.setUsermail(rs.getString(4));
+				u.setUserpassword(rs.getString(5));
+			
+			return u;
+	
+	}
+	public void saveUserMovie(int uid, String uname, int mid, String mname ) throws ClassNotFoundException, SQLException
+	{
+		Connection conn=getConnection();
+		PreparedStatement umPst=conn.prepareStatement("insert into user_movie values(?,?,?,?)");
+		umPst.setInt(1, uid);
+		umPst.setString(2, uname);
+		umPst.setInt(3, mid);
+		umPst.setString(4, mname);
+		umPst.executeUpdate();
 		
 	}
 	
+	public List<Movie> getAllUserMovies(int uid) throws ClassNotFoundException, SQLException
+	{
+		Connection con=getConnection();
+		PreparedStatement pst=con.prepareStatement("select * from movie inner join user_movie where user_movie.uid=? "
+				+ "and movie.id = user_movie.mid");
+		pst.setInt(1, uid);
+		ResultSet rs=pst.executeQuery();
+		List<Movie> movies=new ArrayList<Movie>();
+		
+		while(rs.next())
+		{
+			Movie m=new Movie();
+			m.setMovieid(rs.getInt(1));
+			m.setMovivename(rs.getString(2));
+			Blob b=rs.getBlob(7);
+			byte[] img=b.getBytes(1, (int)b.length());
+			m.setMovieimage(img);
+			
+			movies.add(m);
+		}
+		return movies;		
+	}
 	
-	
+	public int deleteUserMovie(int movieid ) throws ClassNotFoundException, SQLException
+	{
+		Connection conn=getConnection();
+		PreparedStatement umPst=conn.prepareStatement("delete from user_movie where mid = ? ");
+		
+		umPst.setInt(1, movieid );
+		
+		return umPst.executeUpdate();
+		
+		
+	}
 	
 }

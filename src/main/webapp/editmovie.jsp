@@ -16,12 +16,18 @@
     color: black;
     
 }
+
+
 </style>
 </head>
 <body>
 <% Movie m=(Movie)request.getAttribute("movie"); %>
+
+<div class = "form">
 <form action="updatemovie" enctype="multipart/form-data" method="post">
 <h1 class="h1">Edit Movie Details Here!!</h1>
+
+
 Movie id:<input type="number" name="id" value="<%=m.getMovieid() %>" readonly><br>
 <br>
 Movie Name:<input type="text" name="name" value="<%=m.getMovivename() %>"><br>
@@ -41,5 +47,6 @@ Movie image:<input type="file" name="image"><br>
 </form>
 <% String base64Image=new String(Base64.getEncoder().encode(m.getMovieimage())); %>
 <img src="data:image/jpeg;base64, <%=base64Image %>" height="100px" width="100px">
+</div>
 </body>
 </html>

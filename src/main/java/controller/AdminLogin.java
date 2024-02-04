@@ -1,4 +1,4 @@
-package controller;
+ package controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import dao.Dao;
 import dto.Admin;
@@ -18,6 +19,7 @@ public class AdminLogin extends HttpServlet
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
+		
 		String mail=req.getParameter("email");
 		String password=req.getParameter("password");
 		Dao dao=new Dao();
@@ -27,8 +29,11 @@ public class AdminLogin extends HttpServlet
 			Admin admin=dao.findByEmail(mail);
 			if(admin!=null)
 			{
+				
 				if(admin.getAdminpassword().equals(password))
 				{
+					HttpSession session=req.getSession();
+					session.setAttribute("adminname", admin.getAdminname());
 					req.setAttribute("movies", dao.getAllMovies());
 					RequestDispatcher rd1=req.getRequestDispatcher("ahome.jsp");
 					rd1.include(req, resp);
